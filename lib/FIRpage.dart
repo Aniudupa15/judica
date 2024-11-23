@@ -10,14 +10,10 @@ class FirComponent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Judica"),
-        backgroundColor: const Color.fromRGBO(255, 125, 41, 1),
-      ),
       body: Center(
           child: Stack(
               fit: StackFit.expand,
-            children:[ 
+            children:[
               Image.asset('assets/BackgroundImage.jpg',fit: BoxFit.cover,),Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -32,7 +28,7 @@ class FirComponent extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-            
+
                 // Microphone Button
                 GestureDetector(
                   onTap: () {
@@ -57,7 +53,7 @@ class FirComponent extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 16),
-            
+
                 // Informational Text
                 Text(
                   'Press to give Information',
@@ -68,7 +64,7 @@ class FirComponent extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-            
+
                 // Get Started Button
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

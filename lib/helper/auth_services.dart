@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +16,9 @@ class AuthServices {
     try {
       await _auth.currentUser?.sendEmailVerification();
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
   }
 
@@ -29,7 +32,9 @@ class AuthServices {
       );
       return await _auth.signInWithCredential(cred);
     } catch (e) {
-      print(e.toString());
+      if (kDebugMode) {
+        print(e.toString());
+      }
     }
     return null;
   }
@@ -82,7 +87,9 @@ class AuthServices {
         }
       }
     } catch (e) {
-      print('Error during Google sign-in: $e');
+      if (kDebugMode) {
+        print('Error during Google sign-in: $e');
+      }
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Error during Google sign-in: $e")),
       );

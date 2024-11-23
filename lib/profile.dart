@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           alignment: Alignment.center,  // Centers the default image within the CircleAvatar
                           widthFactor: 0.9,  // Scales down the default image width (80% of the CircleAvatar size)
                           heightFactor: 0.9,  // Scales down the default image height (80% of the CircleAvatar size)
-                          child:Icon(Icons.person,size: 100,),
+                          child:Icon(Icons.person,size: 80,),
                         ),
                       ),
                     ),

@@ -2,8 +2,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:judica/auth/auth.dart';
 import 'package:judica/auth/firebase_options.dart';
-import 'package:judica/user_home.dart';
-import 'package:judica/slpash_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

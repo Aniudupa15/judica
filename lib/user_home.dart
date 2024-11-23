@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart'; // Import Firestore
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:judica/chat_bot.dart';
 import 'package:judica/profile.dart';
+import 'package:judica/slpash_screen.dart';
 import 'FIRpage.dart'; // Import your FIR page
 
 class UserHome extends StatefulWidget {
@@ -17,7 +19,7 @@ class _UserHomeState extends State<UserHome> {
 
   // Define the pages for navigation
   static final List<Widget> _pages = <Widget>[
-    const Center(child: Text('Home Page Content')), // Placeholder for Home Page
+    ChatScreen(), // Placeholder for Home Page
     const FirComponent(), // FIR-related component
     const ProfilePage(), // Profile Page
   ];
@@ -32,6 +34,7 @@ class _UserHomeState extends State<UserHome> {
   // Logout function
   void _logout() async {
     await FirebaseAuth.instance.signOut(); // Sign out the user
+    Navigator.push(context, MaterialPageRoute(builder: (context)=>const SplashScreen()));
   }
 
   // Check user data in Firestore
