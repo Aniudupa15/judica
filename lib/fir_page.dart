@@ -1,15 +1,16 @@
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:url_launcher/url_launcher.dart';
 
-class BailPage extends StatefulWidget {
+class FirComponent extends StatefulWidget {
   @override
-  _BailPageState createState() => _BailPageState();
+  _FirComponentState createState() => _FirComponentState();
 }
 
-class _BailPageState extends State<BailPage> {
+class _FirComponentState extends State<FirComponent> {
   final _formKey = GlobalKey<FormState>();
 
   // FIR details form fields
@@ -57,7 +58,7 @@ class _BailPageState extends State<BailPage> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://your-api-url-here/generate-fir'), // Replace with your FastAPI endpoint
+        Uri.parse('http://192.168.29.133:8000/generate-fir'), // Replace with your FastAPI endpoint
         headers: {'Content-Type': 'application/json'},
         body: json.encode(firDetails),
       );
