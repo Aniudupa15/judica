@@ -137,7 +137,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       // "Get Started" Button
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage(onTap: onTap)));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blueAccent,

@@ -8,22 +8,35 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   final LawGPTService service = LawGPTService();
-  final List<String> chatHistory = [];
+  final List<Map<String, String>> chatHistory = []; // Store as question-answer pairs
   final TextEditingController controller = TextEditingController();
-  String response = "";
+  bool isLoading = false; // Indicate loading state
 
   void askQuestion() async {
+    if (controller.text.trim().isEmpty) return; // Prevent empty questions
+
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final question = controller.text;
-      final answer = await service.askQuestion(question, chatHistory);
+      final answer = await service.askQuestion(
+        question,
+        chatHistory.map((entry) => entry["question"]!).toList(),
+      );
+
       setState(() {
-        chatHistory.addAll([question, answer]);
-        response = answer;
+        chatHistory.add({"question": question, "answer": answer});
       });
       controller.clear();
     } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Error: $e")),
+      );
+    } finally {
       setState(() {
-        response = "Error: $e";
+        isLoading = false;
       });
     }
   }
@@ -31,34 +44,64 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("LawGPT Chat")),
       body: Column(
         children: [
+          // Chat history display
           Expanded(
             child: ListView.builder(
               itemCount: chatHistory.length,
               itemBuilder: (context, index) {
-                return ListTile(
-                  title: Text(chatHistory[index]),
-                  tileColor: index % 2 == 0 ? Colors.grey[200] : Colors.white,
+                final entry = chatHistory[index];
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ListTile(
+                      title: Text(
+                        "You: ${entry['question']}",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      tileColor: Colors.grey[300],
+                    ),
+                    ListTile(
+                      title: Text("LawGPT: ${entry['answer']}"),
+                      tileColor: Colors.white,
+                    ),
+                  ],
                 );
               },
             ),
           ),
+          // Loading indicator
+          if (isLoading)
+            const Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(),
+            ),
+          // Input field
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                hintText: "Ask a question...",
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.send),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      hintText: "Ask a question...",
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  color: Theme.of(context).primaryColor,
                   onPressed: askQuestion,
                 ),
-              ),
+              ],
             ),
           ),
-          if (response.isNotEmpty) Text("Response: $response"),
         ],
       ),
     );

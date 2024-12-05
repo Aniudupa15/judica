@@ -1,270 +1,216 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:lottie/lottie.dart';
 
-import 'package:url_launcher/url_launcher.dart';
+class Bailpage extends StatefulWidget {
+  const Bailpage({super.key});
 
-class BailPage extends StatefulWidget {
   @override
-  _BailPageState createState() => _BailPageState();
+  State<Bailpage> createState() => _BailpageState();
 }
 
-class _BailPageState extends State<BailPage> {
+class _BailpageState extends State<Bailpage> {
   final _formKey = GlobalKey<FormState>();
 
-  // FIR details form fields
-  final TextEditingController _bookNoController = TextEditingController();
-  final TextEditingController _formNoController = TextEditingController();
-  final TextEditingController _policeStationController = TextEditingController();
-  final TextEditingController _districtController = TextEditingController();
-  final TextEditingController _dateHourOccurrenceController =
-  TextEditingController();
-  final TextEditingController _dateHourReportedController =
-  TextEditingController();
-  final TextEditingController _informerNameController = TextEditingController();
-  final TextEditingController _descriptionOffenseController =
-  TextEditingController();
-  final TextEditingController _placeOccurrenceController =
-  TextEditingController();
-  final TextEditingController _criminalNameController =
-  TextEditingController();
-  final TextEditingController _investigationStepsController =
-  TextEditingController();
-  final TextEditingController _dispatchTimeController = TextEditingController();
+  // Form fields
+  String? statute;
+  String? offenseCategory;
+  String? penalty;
+  int? imprisonmentDurationServed;
+  int? riskOfEscape;
+  int? riskOfInfluence;
+  int? suretyBondRequired;
+  int? personalBondRequired;
+  int? finesApplicable;
+  int? servedHalfTerm;
+  int? bailEligibility;
+  double? riskScore;
+  double? penaltySeverity;
 
-  bool isLoading = false;
-
-  // Function to handle FIR generation request
-  Future<void> generateFIR() async {
-    setState(() {
-      isLoading = true;
-    });
-
-    final firDetails = {
-      "book_no": _bookNoController.text,
-      "form_no": _formNoController.text,
-      "police_station": _policeStationController.text,
-      "district": _districtController.text,
-      "date_hour_occurrence": _dateHourOccurrenceController.text,
-      "date_hour_reported": _dateHourReportedController.text,
-      "informer_name": _informerNameController.text,
-      "description_offense": _descriptionOffenseController.text,
-      "place_occurrence": _placeOccurrenceController.text,
-      "criminal_name": _criminalNameController.text,
-      "investigation_steps": _investigationStepsController.text,
-      "dispatch_time": _dispatchTimeController.text,
-    };
-
-    try {
-      final response = await http.post(
-        Uri.parse('http://your-api-url-here/generate-fir'), // Replace with your FastAPI endpoint
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(firDetails),
-      );
-
-      if (response.statusCode == 200) {
-        final responseData = json.decode(response.body);
-        final fileName = responseData['download_url'];
-
-        // Show success message and download link
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("FIR Generated Successfully"),
-            content: Text("Download your FIR report: $fileName"),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  // Launch the URL to download the PDF
-                  final downloadUrl = 'http://your-api-url-here/generate-fir/download/$fileName';
-                  if (await canLaunch(downloadUrl)) {
-                    await launch(downloadUrl);
-                  } else {
-                    throw 'Could not launch $downloadUrl';
-                  }
-                },
-                child: Text('Download'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Close'),
-              ),
-            ],
-          ),
-        );
-      } else {
-        throw Exception('Failed to generate FIR');
-      }
-    } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Error"),
-          content: Text(e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Close'),
-            ),
-          ],
-        ),
-      );
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
+  // Dropdown options
+  final List<String> statutes = ['NDPS', 'SCST Act', 'PMLA', 'CrPC', 'IPC'];
+  final List<String> offenseCategories = [
+    'Crimes Against Children',
+    'Offenses Against the State',
+    'Crimes Against Foreigners',
+    'Crimes Against SCs and STs',
+    'Cyber Crime',
+    'Economic Offense',
+    'Crimes Against Women'
+  ];
+  final List<String> penalties = ['Fine', 'Both', 'Imprisonment'];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Generate FIR")),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: ListView(
-            children: [
-              TextFormField(
-                controller: _bookNoController,
-                decoration: InputDecoration(labelText: 'Book No.'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Book No.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _formNoController,
-                decoration: InputDecoration(labelText: 'Form No.'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Form No.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _policeStationController,
-                decoration: InputDecoration(labelText: 'Police Station'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Police Station';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _districtController,
-                decoration: InputDecoration(labelText: 'District'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter District';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dateHourOccurrenceController,
-                decoration: InputDecoration(labelText: 'Date and Hour of Occurrence'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Date and Hour of Occurrence';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dateHourReportedController,
-                decoration: InputDecoration(labelText: 'Date and Hour Reported'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Date and Hour Reported';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _informerNameController,
-                decoration: InputDecoration(labelText: 'Informer Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Informer Name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionOffenseController,
-                decoration: InputDecoration(labelText: 'Brief Description of Offense'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Brief Description of Offense';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _placeOccurrenceController,
-                decoration: InputDecoration(labelText: 'Place of Occurrence'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Place of Occurrence';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _criminalNameController,
-                decoration: InputDecoration(labelText: 'Criminal Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Criminal Name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _investigationStepsController,
-                decoration: InputDecoration(labelText: 'Investigation Steps'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Investigation Steps';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dispatchTimeController,
-                decoration: InputDecoration(labelText: 'Dispatch Time'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Dispatch Time';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    generateFIR();
-                  }
-                },
-                child: Text("Generate FIR"),
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildDropdown('Statute', statutes, statute, (value) {
+                  setState(() => statute = value);
+                }),
+                const SizedBox(height: 16),
+                _buildDropdown('Offense Category', offenseCategories, offenseCategory, (value) {
+                  setState(() => offenseCategory = value);
+                }),
+                const SizedBox(height: 16),
+                _buildDropdown('Penalty', penalties, penalty, (value) {
+                  setState(() => penalty = value);
+                }),
+                const SizedBox(height: 16),
+                _buildNumericInput(
+                  'Imprisonment Duration Served (in years)',
+                      (value) => imprisonmentDurationServed = int.tryParse(value),
+                ),
+                _buildYesNoDropdown('Risk of Escape', (value) => riskOfEscape = value),
+                _buildYesNoDropdown('Risk of Influence', (value) => riskOfInfluence = value),
+                _buildYesNoDropdown('Surety Bond Required', (value) => suretyBondRequired = value),
+                _buildYesNoDropdown('Personal Bond Required', (value) => personalBondRequired = value),
+                _buildYesNoDropdown('Fines Applicable', (value) => finesApplicable = value),
+                _buildYesNoDropdown('Served Half Term (0 or 1)', (value) => servedHalfTerm = value),
+                _buildYesNoDropdown('Bail Eligibility (0 or 1)', (value) => bailEligibility = value),
+                _buildNumericInput(
+                  'Risk Score',
+                      (value) => riskScore = double.tryParse(value),
+                ),
+                _buildNumericInput(
+                  'Penalty Severity',
+                      (value) => penaltySeverity = double.tryParse(value),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: _submitForm,
+                  child: const Text('Submit'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
     );
   }
+
+  Widget _buildDropdown(String label, List<String> items, String? currentValue, ValueChanged<String?> onChanged) {
+    return DropdownButtonFormField<String>(
+      value: currentValue,
+      decoration: InputDecoration(labelText: label),
+      items: items.map((item) => DropdownMenuItem(value: item, child: Text(item))).toList(),
+      onChanged: onChanged,
+      validator: (value) => value == null ? 'Please select $label' : null,
+    );
+  }
+
+  Widget _buildYesNoDropdown(String label, ValueChanged<int?> onChanged) {
+    return DropdownButtonFormField<int>(
+      decoration: InputDecoration(labelText: label),
+      items: [0, 1]
+          .map((value) => DropdownMenuItem(value: value, child: Text(value == 1 ? 'Yes' : 'No')))
+          .toList(),
+      onChanged: onChanged,
+      validator: (value) => value == null ? 'Please select $label' : null,
+    );
+  }
+
+  Widget _buildNumericInput(String label, ValueChanged<String> onSaved) {
+    return TextFormField(
+      decoration: InputDecoration(labelText: label),
+      keyboardType: TextInputType.number,
+      validator: (value) => value == null || value.isEmpty ? 'Please enter $label' : null,
+      onSaved: (value) => onSaved(value!),
+    );
+  }
+
+  void _submitForm() async {
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save();
+
+      final payload = {
+        'statute': statute,
+        'offense_category': offenseCategory,
+        'penalty': penalty,
+        'imprisonment_duration_served': imprisonmentDurationServed,
+        'risk_of_escape': riskOfEscape,
+        'risk_of_influence': riskOfInfluence,
+        'surety_bond_required': suretyBondRequired,
+        'personal_bond_required': personalBondRequired,
+        'fines_applicable': finesApplicable,
+        'served_half_term': servedHalfTerm,
+        'bail_eligibility': bailEligibility,
+        'risk_score': riskScore,
+        'penalty_severity': penaltySeverity,
+      };
+
+      const apiUrl = 'https://bail.onrender.com/predict-bail';
+      try {
+        final postResponse = await http.post(
+          Uri.parse(apiUrl),
+          headers: {'Content-Type': 'application/json'},
+          body: json.encode(payload),
+        );
+
+        if (postResponse.statusCode == 200) {
+          final postResponseData = json.decode(postResponse.body);
+          _showResponseDialog({...postResponseData});
+        } else {
+          _showResponseDialog({'Error': 'POST request failed'});
+        }
+      } catch (e) {
+        _showResponseDialog({'Error': 'An error occurred: $e'});
+      }
+    }
+  }
+
+  void _showResponseDialog(Map<String, dynamic> response) {
+    // Check the response for bail-related data
+    bool isBailGranted = response['Eligible for Bail'] == 1; // Or use another condition based on API response
+
+    String lottieAsset = isBailGranted
+        ? 'assets/lottie/bail.json'  // Lottie file for bail
+        : 'assets/lottie/no_bail.json'; // Lottie file for no bail
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Response', style: TextStyle(fontWeight: FontWeight.bold)),
+        content: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Lottie Animation based on Bail Eligibility
+              Lottie.asset(
+                lottieAsset,
+                width: 100,
+                height: 100,
+                fit: BoxFit.contain,
+              ),
+              const SizedBox(height: 16),
+              // Display the response data
+              ...response.entries.map((entry) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Text(
+                    '${entry.key}: ${entry.value}',
+                    style: TextStyle(fontSize: 16, color: Colors.black87),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK', style: TextStyle(fontWeight: FontWeight.bold)),
+          ),
+        ],
+      ),
+    );
+  }
+
 }

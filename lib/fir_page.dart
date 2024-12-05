@@ -1,8 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:url_launcher/url_launcher.dart';
 
 class FirComponent extends StatefulWidget {
@@ -18,19 +16,13 @@ class _FirComponentState extends State<FirComponent> {
   final TextEditingController _formNoController = TextEditingController();
   final TextEditingController _policeStationController = TextEditingController();
   final TextEditingController _districtController = TextEditingController();
-  final TextEditingController _dateHourOccurrenceController =
-  TextEditingController();
-  final TextEditingController _dateHourReportedController =
-  TextEditingController();
+  final TextEditingController _dateHourOccurrenceController = TextEditingController();
+  final TextEditingController _dateHourReportedController = TextEditingController();
   final TextEditingController _informerNameController = TextEditingController();
-  final TextEditingController _descriptionOffenseController =
-  TextEditingController();
-  final TextEditingController _placeOccurrenceController =
-  TextEditingController();
-  final TextEditingController _criminalNameController =
-  TextEditingController();
-  final TextEditingController _investigationStepsController =
-  TextEditingController();
+  final TextEditingController _descriptionOffenseController = TextEditingController();
+  final TextEditingController _placeOccurrenceController = TextEditingController();
+  final TextEditingController _criminalNameController = TextEditingController();
+  final TextEditingController _investigationStepsController = TextEditingController();
   final TextEditingController _dispatchTimeController = TextEditingController();
 
   bool isLoading = false;
@@ -58,67 +50,73 @@ class _FirComponentState extends State<FirComponent> {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.29.133:8000/generate-fir'), // Replace with your FastAPI endpoint
+        Uri.parse('https://fir-generator.onrender.com/'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(firDetails),
       );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        final fileName = responseData['download_url'];
+        final downloadUrl = responseData['download_url'];
 
-        // Show success message and download link
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("FIR Generated Successfully"),
-            content: Text("Download your FIR report: $fileName"),
-            actions: [
-              TextButton(
-                onPressed: () async {
-                  // Launch the URL to download the PDF
-                  final downloadUrl = 'http://your-api-url-here/generate-fir/download/$fileName';
-                  if (await canLaunch(downloadUrl)) {
-                    await launch(downloadUrl);
-                  } else {
-                    throw 'Could not launch $downloadUrl';
-                  }
-                },
-                child: Text('Download'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('Close'),
-              ),
-            ],
-          ),
-        );
+        if (downloadUrl != null && Uri.parse(downloadUrl).isAbsolute) {
+          final uri = Uri.parse(downloadUrl);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } else {
+            _showErrorDialog('Could not open the download link. Copy the link manually:\n$downloadUrl');
+          }
+
+        } else {
+          _showErrorDialog('Invalid download URL received. Please contact support.');
+        }
       } else {
-        throw Exception('Failed to generate FIR');
+        throw Exception('Failed to generate FIR: ${response.reasonPhrase}');
       }
     } catch (e) {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Error"),
-          content: Text(e.toString()),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Close'),
-            ),
-          ],
-        ),
-      );
+      _showErrorDialog('Error occurred: ${e.toString()}');
     } finally {
       setState(() {
         isLoading = false;
       });
     }
+  }
+
+  // Error Dialog Helper Function
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Error"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    // Dispose controllers to prevent memory leaks
+    _bookNoController.dispose();
+    _formNoController.dispose();
+    _policeStationController.dispose();
+    _districtController.dispose();
+    _dateHourOccurrenceController.dispose();
+    _dateHourReportedController.dispose();
+    _informerNameController.dispose();
+    _descriptionOffenseController.dispose();
+    _placeOccurrenceController.dispose();
+    _criminalNameController.dispose();
+    _investigationStepsController.dispose();
+    _dispatchTimeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -131,126 +129,18 @@ class _FirComponentState extends State<FirComponent> {
           key: _formKey,
           child: ListView(
             children: [
-              TextFormField(
-                controller: _bookNoController,
-                decoration: InputDecoration(labelText: 'Book No.'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Book No.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _formNoController,
-                decoration: InputDecoration(labelText: 'Form No.'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Form No.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _policeStationController,
-                decoration: InputDecoration(labelText: 'Police Station'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Police Station';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _districtController,
-                decoration: InputDecoration(labelText: 'District'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter District';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dateHourOccurrenceController,
-                decoration: InputDecoration(labelText: 'Date and Hour of Occurrence'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Date and Hour of Occurrence';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dateHourReportedController,
-                decoration: InputDecoration(labelText: 'Date and Hour Reported'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Date and Hour Reported';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _informerNameController,
-                decoration: InputDecoration(labelText: 'Informer Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Informer Name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descriptionOffenseController,
-                decoration: InputDecoration(labelText: 'Brief Description of Offense'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Brief Description of Offense';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _placeOccurrenceController,
-                decoration: InputDecoration(labelText: 'Place of Occurrence'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Place of Occurrence';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _criminalNameController,
-                decoration: InputDecoration(labelText: 'Criminal Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Criminal Name';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _investigationStepsController,
-                decoration: InputDecoration(labelText: 'Investigation Steps'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Investigation Steps';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _dispatchTimeController,
-                decoration: InputDecoration(labelText: 'Dispatch Time'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter Dispatch Time';
-                  }
-                  return null;
-                },
-              ),
+              _buildTextField(_bookNoController, 'Book No.'),
+              _buildTextField(_formNoController, 'Form No.'),
+              _buildTextField(_policeStationController, 'Police Station'),
+              _buildTextField(_districtController, 'District'),
+              _buildTextField(_dateHourOccurrenceController, 'Date and Hour of Occurrence'),
+              _buildTextField(_dateHourReportedController, 'Date and Hour Reported'),
+              _buildTextField(_informerNameController, 'Informer Name'),
+              _buildTextField(_descriptionOffenseController, 'Brief Description of Offense'),
+              _buildTextField(_placeOccurrenceController, 'Place of Occurrence'),
+              _buildTextField(_criminalNameController, 'Criminal Name'),
+              _buildTextField(_investigationStepsController, 'Investigation Steps'),
+              _buildTextField(_dispatchTimeController, 'Dispatch Time'),
               SizedBox(height: 20),
               isLoading
                   ? Center(child: CircularProgressIndicator())
@@ -266,6 +156,20 @@ class _FirComponentState extends State<FirComponent> {
           ),
         ),
       ),
+    );
+  }
+
+  // Helper Function to Build TextFields
+  Widget _buildTextField(TextEditingController controller, String label) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(labelText: label),
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Please enter $label';
+        }
+        return null;
+      },
     );
   }
 }

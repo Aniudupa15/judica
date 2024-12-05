@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:judica/chat_bot.dart';
 import 'package:judica/profile.dart';
 import 'package:judica/slpash_screen.dart';
-import 'FIRpage.dart'; // Import your FIR page
+import 'fir_page.dart'; // Import your FIR page
 
 class UserHome extends StatefulWidget {
   const UserHome({super.key});
@@ -20,7 +20,7 @@ class _UserHomeState extends State<UserHome> {
   // Define the pages for navigation
   static final List<Widget> _pages = <Widget>[
     ChatScreen(), // Placeholder for Home Page
-    const FirComponent(), // FIR-related component
+    // const FirComponent(), // FIR-related component
     const ProfilePage(), // Profile Page
   ];
 
@@ -89,13 +89,13 @@ class _UserHomeState extends State<UserHome> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.chat),
+            label: 'ChatBot',
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.assignment), // Updated icon for FIR
-            label: 'FIR',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: Icon(Icons.assignment), // Updated icon for FIR
+          //   label: 'FIR',
+          // ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Profile',

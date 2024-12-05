@@ -35,7 +35,7 @@ class Authpage extends StatelessWidget {
     return switch (role) {
       'Citizen' => const UserHome(),
       'Police' => const PoliceHome(),
-      'Advocate' => const AdvocateHome(),
+      'Judge' => const AdvocateHome(),
       _ => const SplashScreen() // Redirect to SplashScreen if the role is undefined
     };
   }

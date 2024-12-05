@@ -6,15 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:judica/advocate_home.dart';
 import 'package:judica/police_home.dart';
+import 'package:judica/register.dart';
 import 'package:judica/user_home.dart';
 import 'package:judica/forgot_password.dart';
 // Ensure this is implemented
 import 'helper/auth_services.dart';
 
 class LoginPage extends StatefulWidget {
-  final void Function()? onTap;
-
-  const LoginPage({super.key, required this.onTap});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -279,7 +277,12 @@ class _LoginPageState extends State<LoginPage> {
       children: [
         const Text("Don't have an account? "),
         GestureDetector(
-          onTap: widget.onTap,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) =>  RegisterPage()),
+            );
+          },
           child: const Text(
             "Sign Up",
             style: TextStyle(color: Colors.blue),
